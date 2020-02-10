@@ -16,6 +16,8 @@ Data is available back to 2006, but is in `.PDF` format until 2013 when it chang
 Some things I learned from the process include:
 1. Unsurprisingly, the scripts ended up very similar - I realized I could just write one to automate cleaning if I was careful to account for their nuances. 
 2. There's no need to convert from `.XLS(X)` to `.CSV` before cleaning! For some reason I thought this was a necessary step but it's really just a waste, R handles Excel files just fine.
-3. 
+3. Iteratively testing a complex solution in bite sized pieces makes a much easier and faster approach to solving complex problems
+4. R has an incredible amount of quality resources - packages, community support, tutorials, etc. - that helped me immensely with certain aspects of this project.
 
-That's what `STB-Rail-Update.R`  
+
+After working through cleaning the historic rail data, I started putting `STB-Rail-Update.R` together using the scripts I made for each carrier as reminders of what to watch out for and guidance to improve.
