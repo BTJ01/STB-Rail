@@ -15,7 +15,7 @@
 ## --------------- Initialize ---------------------------------------
 
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, readxl, magrittr)
+pacman::p_load(tidyverse, readxl, magrittr, DBI, lubridate, odbc)
 memory.limit(30000000)   # Needed on some PCs to increase memory allowance, no impact on macs
 
 
@@ -30,6 +30,29 @@ clean_dataPath <-
 
 
 ## --------------- Functions ----------------------------------------
+
+#Connect to SQL Server
+sql_connect <- function(database, user = 'fwetl'){
+  db <- case_when(tolower(database) %in% c('s', 'staging', 'stage') ~ "Staging",
+                  tolower(database) %in% c('w', 'warehouse', 'ware', 'wh') ~ "Warehouse",
+                  tolower(database) %in% c('f','factset','fs') ~ "Factset",
+                  tolower(database) %in% c('segment', 'seg', 'user') ~ "Segment")
+  if(is.na(db)) {
+    return('You must choose either Staging, Warehouse, Segment or Factset.')
+    break
+  } else {
+    return(odbc::dbConnect(odbc(),
+                           Driver = "SQL Server",
+                           Server = Sys.getenv("server"),
+                           Database = db,
+                           UID = Sys.getenv("user"),
+                           PWD = Sys.getenv("pass"),
+                           Port = 1433))
+  }
+}
+
+fcon <- sql_connect('f')
+scon <- sql_connect('s')
 
 # Remove commas, change data_value columns from 'character' to 'numeric'
 fix.numeric <- function(DF) {
@@ -113,7 +136,7 @@ rail_master <-
   )
 
 
-## --------------- Import CSV files ---------------------------------
+## --------------- Import CSV file ----------------------------------
 
 # Load AAR Commodity Codes
 AAR_Com_Code <-
@@ -273,10 +296,10 @@ rail_new <- bind_rows(BNSF, CSX, GTC, KCS, NS, SOO, UP)
 
 ## --------------- Export -------------------------------------------
 
-#dbWriteTable(scon, 
-#             "indx_index_data", 
-#             ???????,
-#             overwrite = F,
-#             append = T)
+dbWriteTable(scon, 
+             "indx_index_data", 
+             rail_new,
+             overwrite = F,
+             append = T)
 #Don't forget to move/delete excel files to not get picked up again
-##
+
